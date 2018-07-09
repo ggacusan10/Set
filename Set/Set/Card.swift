@@ -9,30 +9,26 @@
 import Foundation
 
 struct Card {
+    
     var isMatched = false
-    var identifier: Int
     
-    enum Shape {
-        case alpha
-        case beta
-        case charlie
+    var shapeId: Int
+    var colorId: Int
+    var shadeId: Int
+    var numberId: Int
+    
+    static var idFactory: Int = 0
+    
+    static func generateId() -> Int {
+        idFactory = Int(arc4random_uniform(UInt32(3)))
+        return idFactory
     }
     
-    enum Number {
-        case one
-        case two
-        case three
-    }
-    
-    enum Shade {
-        case empty
-        case filled
-        case striped
-    }
-    
-    enum Color {
-        case red
-        case blue
-        case green
+    init() {
+        self.shapeId = Card.generateId()
+        self.colorId = Card.generateId()
+        self.shadeId = Card.generateId()
+        self.numberId = Card.generateId()
     }
 }
+
