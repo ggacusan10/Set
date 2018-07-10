@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Card {
+struct Card: Equatable {
     
     var isMatched = false
     
@@ -20,8 +20,17 @@ struct Card {
     static var idFactory: Int = 0
     
     static func generateId() -> Int {
-        idFactory = Int(arc4random_uniform(UInt32(3)))
+        idFactory = Int.random(upperbound: 3)
         return idFactory
+    }
+    
+    static func ==(lhs: Card, rhs: Card) -> Bool {
+        return (
+            (((lhs.shadeId == rhs.shadeId) &&
+                lhs.colorId == rhs.colorId) &&
+                lhs.shapeId == rhs.shapeId) &&
+                lhs.numberId == rhs.numberId
+        )
     }
     
     init() {
@@ -29,6 +38,12 @@ struct Card {
         self.colorId = Card.generateId()
         self.shadeId = Card.generateId()
         self.numberId = Card.generateId()
+    }
+}
+
+extension Int {
+    static func random(upperbound: Int) -> Int {
+        return Int(arc4random_uniform(UInt32(upperbound)))
     }
 }
 

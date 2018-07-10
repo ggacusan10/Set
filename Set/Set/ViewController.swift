@@ -20,26 +20,21 @@ class ViewController: UIViewController {
     
     @IBOutlet var setButtons: [UIButton]!
     
-    var numberOfCardsSelected = 0
-    
     @IBAction func touchButton(_ sender: UIButton) {
-        numberOfCardsSelected += 1
         if let index = setButtons.index(of: sender) {
             let button = setButtons[index]
-            if(numberOfCardsSelected <= 3) {
-                button.layer.borderWidth = 3.0
-                button.layer.borderColor = #colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1)
-            }
-            else {
-                resetAllButtonColors()
-                button.layer.borderWidth = 3.0
-                button.layer.borderColor = #colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1)
-            }
+            let card = game.cardDeck[index]
+            
             game.tryToMatch(at: index)
+            
+            button.layer.borderWidth = (game.selectedCards.contains(card)) ? 3.0:0
+            button.layer.borderColor = (game.selectedCards.contains(card)) ? #colorLiteral(red: 0.2903060761, green: 0.893158637, blue: 1, alpha: 1):#colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)
+        
+            if(game.reset) {resetAllButtonColors()}
+            
             matchLabel.text = game.matchText
             print("Touched card: \(index)")
         }
-        print("Cards selected: \(numberOfCardsSelected)\n")
     }
     
     func resetAllButtonColors() {
@@ -49,7 +44,6 @@ class ViewController: UIViewController {
             button.layer.borderWidth = 0
             button.layer.borderColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)
         }
-        numberOfCardsSelected = 1
     }
     
     /*func updateView() {
@@ -63,41 +57,31 @@ class ViewController: UIViewController {
         }
     }*/
     
-    let attributes: [NSAttributedStringKey:Any] = [
-        //  .strokeColor: UIColor.blue,
-        //  .strokeWidth: 5.0,
-        .foregroundColor: UIColor.black.withAlphaComponent(1.00)
-    ]
-    
-    func getAttributes(shadeId shade: Int, withColor color: UIColor) -> [NSAttributedStringKey:Any]? {
-        
-        switch shade {
-        case 0:
-            return [ // empty
-                .strokeColor: color,
-                .strokeWidth: 5.0
-            ]
-        case 1:
-            return [ // striped
-                .strokeColor: color,
-                .strokeWidth: -5.0,
-                .foregroundColor: UIColor.black.withAlphaComponent(0.2)
-            ]
-        case 2:
-            return [ // filled
-                .strokeColor: color,
-                .strokeWidth: -5.0,
-                .foregroundColor: color.withAlphaComponent(1.00)
-            ]
-        default:
-            return nil
-        }
+    func getAttributes(shadeId shade: Int, withColor color: UIColor) -> [NSAttributedStringKey:Any] {
+        let attributesArray: [[NSAttributedStringKey:Any]] = [
+            [.strokeColor: color,
+             .strokeWidth: 5.0], // empty
+            
+            [.strokeColor: color,
+             .strokeWidth: -5.0,
+             .foregroundColor: UIColor.black.withAlphaComponent(0.2)], // striped
+            
+            [.strokeColor: color,
+             .strokeWidth: -5.0,
+             .foregroundColor: color.withAlphaComponent(1.00)] // filled
+        ]
+        return attributesArray[shade]
     }
     
     let shapes = ["▲", "●", "■"]
     let colors = [#colorLiteral(red: 0.7450980544, green: 0.1568627506, blue: 0.07450980693, alpha: 1),#colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1),#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)]
     
+    @IBAction func newGame(_ sender: UIButton) {
+        print("New game pressed")
+    }
+    
     func startGame() {
+        matchLabel.text = ""
         for i in 0..<24 {
             let button = setButtons[i]
             let card = game.cardDeck[i]

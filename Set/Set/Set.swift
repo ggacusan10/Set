@@ -13,18 +13,21 @@ class Set {
     var selectedCards = [Card]() // should only contain 3 cards
     var matchedCards = [Card]() // contains all matched cards
     
+    var visitedCard = false
+    
+    var reset = false
+    
     var matchText: String = ""
     
     /*
      
      1. Has a list of cards that are being played
-     2. Has selected cards
-     3. Knows if the selected cards are a match/not a match
-     4. Has deck of cards to deal
+     2. Has selected cards ✅
+     3. Knows if the selected cards are a match/not a match ✅
+     4. Has deck of cards to deal ✅
      5. Keeps track of already matched cards
-     
-     * Try to match
-     * And deal on demand
+    
+     * Deal on demand
      
     */
     
@@ -34,9 +37,26 @@ class Set {
         // if no match exists, then enable Deal 3 More Cards
         
         if selectedCards.count < 3 { // still has to pick 3 cards to match
+            reset = false
+            
             let card = cardDeck[index]
-            selectedCards.append(card)
-            matchText = ""
+            
+            // Already chosen card / Deselect
+            if selectedCards.contains(where: {$0 == card})
+            {
+                visitedCard = true
+                print("This card is already chosen. Going to deselect")
+                if let index = selectedCards.index(where: {$0 == card}) {
+                    print("Removing index: \(index)")
+                    selectedCards.remove(at: index)
+                    print("Selected cards: \(selectedCards)")
+                }
+            } else {
+                visitedCard = false
+                selectedCards.append(card)
+                matchText = ""
+                print("Selected cards: \(selectedCards)")
+            }
         }
         
         if selectedCards.count == 3 { // each feature matches or does not match
@@ -44,12 +64,12 @@ class Set {
             if result == true {
                 matchText = "It's a Set!"
                 print("It's a Set!")
-                selectedCards.removeAll()
             } else {
                 matchText = "Not a Set"
                 print("Not a Set")
-                selectedCards.removeAll()
             }
+            selectedCards.removeAll()
+            reset = true
         }
     }
     
@@ -90,7 +110,7 @@ class Set {
             result = true
         }
         
-        // if everything is different
+        // check for uniqueness
         if((array[0] != array[1] &&
             array[0] != array[2]) &&
             array[1] != array[2]){
@@ -99,27 +119,18 @@ class Set {
         return result
     }
     
-
     init() {
         for _ in 0..<24 {
             var card = Card()
             //print("Card gen: \(card)")
             
-            if cardDeck.contains(where: {
-                 ((($0.colorId == card.colorId &&
-                    $0.shapeId == card.shapeId) &&
-                    $0.shadeId == card.shadeId) &&
-                    $0.numberId == card.numberId)}) {
+            if cardDeck.contains(where: {$0 == card}) {
                 print("Found similar card. Will make new")
                 repeat
                 {
                     card = Card()
-                //    print("New card generated: \(card)\n")
-                } while cardDeck.contains(where: {
-                     ((($0.colorId == card.colorId &&
-                        $0.shapeId == card.shapeId) &&
-                        $0.shadeId == card.shadeId) &&
-                        $0.numberId == card.numberId)})
+                //  print("New card generated: \(card)\n")
+                } while cardDeck.contains(where: {$0 == card})
             }
             cardDeck.append(card)
         }
