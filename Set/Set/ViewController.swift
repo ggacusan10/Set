@@ -12,50 +12,94 @@ class ViewController: UIViewController {
     
     var game = Set()
     
+    var currentlyVisibleButtons = [UIButton]()
+    
+    var selectedButtons = [Int]() // array of button indicies
+    
     @IBOutlet weak var matchLabel: UILabel!
     
     @IBAction func dealMoreCards(_ sender: UIButton) {
         print("Deal More Cards pressed")
+        if game.cardDeck.count > 0, currentlyVisibleButtons.count < 24 {
+            let pastSize = currentlyVisibleButtons.count
+            for i in 0...2 {
+                let button = setButtons[pastSize+i]
+                let card = game.dealMoreCards()
+                
+                var title = String()
+                
+                for _ in 0...card.numberId {
+                    title.append(shapes[card.shapeId])
+                }
+                
+                let attributes = getAttributes(shadeId: card.shadeId, withColor: colors[card.colorId])
+                
+                let attributedString = NSAttributedString(string: title, attributes: attributes)
+                
+                button.setAttributedTitle(attributedString, for: .normal)
+                button.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+                currentlyVisibleButtons.append(button)
+            }
+        }
+        print("Card deck size: \(game.cardDeck.count)")
     }
     
-    @IBOutlet var setButtons: [UIButton]!
+    @IBOutlet var setButtons: [UIButton]! {
+        didSet {
+            for i in 0..<24 {
+                let button = setButtons[i]
+                button.setTitle("", for: .normal)
+                button.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 0)
+            }
+        }
+    }
     
     @IBAction func touchButton(_ sender: UIButton) {
-        if let index = setButtons.index(of: sender) {
+        if let index = setButtons.index(of: sender){
             let button = setButtons[index]
-            let card = game.cardDeck[index]
-            
-            game.tryToMatch(at: index)
-            
+            if currentlyVisibleButtons.contains(button) { // only if the button is visible on the UI
+                game.tryToMatch(at: index)
+                updateView()
+                matchLabel.text = game.matchText
+                print("Touched card: \(index)")
+            }
+        }
+    }
+   
+    func updateView() {
+        for index in currentlyVisibleButtons.indices {
+            let button = currentlyVisibleButtons[index]
+            let card = game.currentlyPlayingCards[index]
             button.layer.borderWidth = (game.selectedCards.contains(card)) ? 3.0:0
             button.layer.borderColor = (game.selectedCards.contains(card)) ? #colorLiteral(red: 0.2903060761, green: 0.893158637, blue: 1, alpha: 1):#colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)
-        
-            if(game.reset) {resetAllButtonColors()}
             
-            matchLabel.text = game.matchText
-            print("Touched card: \(index)")
+            if game.replaceCurrentCards, game.cardDeck.count > 0 {
+               //  print("Going to replace current cards")
+               // for index in currentlyVisibleButtons.indices {
+               //     let button = currentlyVisibleButtons[index]
+                    if button.layer.borderColor == #colorLiteral(red: 0.2903060761, green: 0.893158637, blue: 1, alpha: 1) {
+                        print("Will replace \(index)")
+                        
+                        let card = game.replaceCard(atIndex: index)
+                        
+                        var title = String()
+                        for _ in 0...card.numberId {
+                            title.append(shapes[card.shapeId])
+                        }
+                        
+                        let attributes = getAttributes(shadeId: card.shadeId, withColor: colors[card.colorId])
+                        
+                        let attributedString = NSAttributedString(string: title, attributes: attributes)
+                        
+                        button.setAttributedTitle(attributedString, for: .normal)
+                        button.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+                    }
+               // }
+            }
         }
+        print("Card deck size: \(game.cardDeck.count)")
+        print("Currently playing size: \(game.currentlyPlayingCards.count)")
     }
-    
-    func resetAllButtonColors() {
-        // clear everything
-        for index in setButtons.indices {
-            let button = setButtons[index]
-            button.layer.borderWidth = 0
-            button.layer.borderColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)
-        }
-    }
-    
-    /*func updateView() {
-        for i in setButtons.indices {
-            let button = setButtons[i]
-            let random = Int(arc4random_uniform(UInt32(shades.count)))
-            
-            let attributedString = NSAttributedString(string: shades[random], attributes: attributes)
-            
-            button.setAttributedTitle(attributedString, for: .normal)
-        }
-    }*/
     
     func getAttributes(shadeId shade: Int, withColor color: UIColor) -> [NSAttributedStringKey:Any] {
         let attributesArray: [[NSAttributedStringKey:Any]] = [
@@ -82,24 +126,23 @@ class ViewController: UIViewController {
     
     func startGame() {
         matchLabel.text = ""
-        for i in 0..<24 {
+        
+        for i in 0..<12 {
             let button = setButtons[i]
-            let card = game.cardDeck[i]
-            
+            let card = game.currentlyPlayingCards[i]
+
             var title = String()
-            
             for _ in 0...card.numberId {
                 title.append(shapes[card.shapeId])
             }
             
             let attributes = getAttributes(shadeId: card.shadeId, withColor: colors[card.colorId])
             
-            print("Card: \(card)")
-            
             let attributedString = NSAttributedString(string: title, attributes: attributes)
             
             button.setAttributedTitle(attributedString, for: .normal)
             button.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+            currentlyVisibleButtons.append(button)
         }
     }
 
