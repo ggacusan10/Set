@@ -25,7 +25,6 @@ class Set {
         for _ in 0..<81 {
             var card = Card()
             if array.contains(where: {$0 == card}) {
-                //print("Found similar card. Will make new")
                 repeat {
                     card = Card()
                 } while array.contains(where: {$0 == card})
@@ -46,7 +45,6 @@ class Set {
     func dealMoreCards() -> Card { // adds more cards
         let card = cardDeck.removeFirst()
         currentlyPlayingCards.append(card)
-        
         return card
     }
     
@@ -83,9 +81,7 @@ class Set {
             if result == true {
                 matchText = "It's a Set!"
                 print("It's a Set!")
-                
                 matchedCards.append(contentsOf: selectedCards)
-                
                 replaceCurrentCards = true
             } else {
                 matchText = "Not a Set"
@@ -148,10 +144,3 @@ class Set {
         print("Init card deck size: \(cardDeck.count)")
     }
 }
-
-
-
-
-
-
-
