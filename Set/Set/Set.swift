@@ -42,6 +42,25 @@ class Set {
     
     var replaceCurrentCards = false
     
+    func restartGame() {
+        cardDeck.append(contentsOf: matchedCards)
+        cardDeck.append(contentsOf: currentlyPlayingCards)
+        
+        for i in cardDeck.indices {
+            let random = Int.random(upperbound: cardDeck.count)
+            cardDeck.swapAt(i, random)
+        }
+        
+        currentlyPlayingCards.removeAll()
+        matchedCards.removeAll()
+        
+        for _ in 0..<12 { // start with 12 cards
+            let card = cardDeck.removeFirst()
+            currentlyPlayingCards.append(card)
+        }
+        print("Refreshed. Card Deck size: \(cardDeck.count)")
+    }
+    
     func dealMoreCards() -> Card { // adds more cards
         let card = cardDeck.removeFirst()
         currentlyPlayingCards.append(card)

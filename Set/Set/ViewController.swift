@@ -92,6 +92,14 @@ class ViewController: UIViewController {
     let colors = [#colorLiteral(red: 0.7450980544, green: 0.1568627506, blue: 0.07450980693, alpha: 1),#colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1),#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)]
     
     @IBAction func newGame(_ sender: UIButton) {
+        game.restartGame()
+        currentlyVisibleButtons.removeAll()
+        
+        for index in 0..<24 { // refresh to only show 12 buttons
+            _ = styleButton(atIndex: index, method: "disappear")
+        }
+        
+        startGame()
         print("New game pressed")
     }
     
